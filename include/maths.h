@@ -1,15 +1,16 @@
 #ifndef MATHS_H
 #define MATHS_H
 #include <stdlib.h>
-#include "raylib.h"
 
-//if I want to use this math library outside of raylib, need to delete the include and uncomment the struct below
 
-/***************
+//Since I use this with raylib a lot, I just wanted it to be seamlessly interoperable
+#ifndef RAYLIB
+
 typedef struct {
 	float x,y;
 }Vector2;
-***************/
+
+#endif //RAYLIB
 
 //returns a random float [tmin,tmax]
 float rand_float(float tmin, float tmax);
