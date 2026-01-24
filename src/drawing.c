@@ -50,9 +50,9 @@ int draw_diagnostics(double frametime_start, double frametime_end, double render
 
 void draw_gui(Options* props)
 {
-	GuiSliderBar((Rectangle){100,175,100,25},"Particle Count",TextFormat("%d",(int)props->nparticles),&props->nparticles,1,100);
+	GuiSliderBar((Rectangle){100,175,100,25},"Particle Count",TextFormat("%d",(int)props->nparticles),&props->nparticles,1,3000);
 
-	GuiSliderBar((Rectangle){100,225,100,25},"Gravity",TextFormat("%0.2f",props->gravity),&props->gravity,0,50);
+	GuiSliderBar((Rectangle){100,225,100,25},"Gravity",TextFormat("%0.2f",props->gravity),&props->gravity,0,1000);
 
 	// GuiSliderBar((Rectangle){100,275,100,25},"Timestep",TextFormat("1/%d",props->timestep),&props->timestep,1/1.,1/200.);
 

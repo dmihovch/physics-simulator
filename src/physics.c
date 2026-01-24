@@ -13,7 +13,7 @@ void update_particles(Particle* p, Options opts)
 
 void reset_accelerations(Particle* p, Options opts)
 {
-	for(int i = 0; i<opts.nparticles; ++i)
+	for(int i = 0; i<(int)opts.nparticles; ++i)
 	{
 		vec2_zero(&p[i].acc);
 	}
@@ -21,9 +21,9 @@ void reset_accelerations(Particle* p, Options opts)
 
 void accumulate_forces(Particle* p, Options opts)
 {
-	for(int i = 0; i<opts.nparticles; ++i)
+	for(int i = 0; i<(int)opts.nparticles; ++i)
 	{
-		for(int j = i + 1; j<opts.nparticles; ++j)
+		for(int j = i + 1; j<(int)opts.nparticles; ++j)
 		{
 			//calculate the forces for both i and j
 			//inverse square law
@@ -43,7 +43,7 @@ void accumulate_forces(Particle* p, Options opts)
 
 void move_particles_handle_walls(Particle* p, Options opts)
 {
-	for(int i = 0; i<opts.nparticles; ++i)
+	for(int i = 0; i<(int)opts.nparticles; ++i)
 	{
 		vec2_add_ip(&p[i].vel,vec2_scalar_mult(p[i].acc, opts.timestep));
 		vec2_add_ip(&p[i].pos,vec2_scalar_mult(p[i].vel, opts.timestep));
@@ -74,9 +74,9 @@ void move_particles_handle_walls(Particle* p, Options opts)
 
 void handle_particle_collisions(Particle* p, Options opts)
 {
-	for(int i = 0; i < opts.nparticles; ++i)
+	for(int i = 0; i < (int)opts.nparticles; ++i)
 	{
-		for(int j = i+1; j<opts.nparticles; ++j)
+		for(int j = i+1; j<(int)opts.nparticles; ++j)
 		{
 			float scalar_dist;	
 			Vector2 normal = check_collisions_circles(&scalar_dist,p[i].pos, p[i].r, p[j].pos, p[j].r);

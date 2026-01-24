@@ -57,13 +57,16 @@ int main(/* int argc, char** argv */){
 	int err;
 	while(!WindowShouldClose() && GetKeyPressed() != KEY_Q)
 	{
-		printf("start loop\n");
 		frametime_start = GetTime();
+		
+		if(IsKeyPressed(KEY_R))
+		{
+			opts.gravity = DEFAULT_GRAVITY;
+		}
+
 		Options sopts = opts;
-		printf("in main: %d\t%d\n",(int)sopts.nparticles,rendered_particles);
 		if((int)sopts.nparticles > rendered_particles)
 		{
-			printf("%d\t%d\n",(int)sopts.nparticles,rendered_particles);
 			particles = realloc_rand_nparticles(particles,(int)sopts.nparticles,rendered_particles);
 			if(particles == NULL)
 			{
@@ -106,9 +109,7 @@ int main(/* int argc, char** argv */){
 		
 		draw_diagnostics(frametime_start, frametime_end, render_start, render_end, update_start, update_end);
 		draw_gui(&opts);
-		printf("here again\n");
 		EndDrawing();
-		printf("end loop\n");
 
 	}
 
