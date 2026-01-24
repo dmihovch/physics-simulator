@@ -1,0 +1,4 @@
+1) Velocity Verlet or RK4 > Euler Integration
+2) Convert to Astronomical Units (~1AU from Sun - Earth), scaled so that masses & distances stay between 0.0001 - 10,000, (maybe?) set sun to 1.0 mass
+3) Fix initial velocities based on distance from central mass v = sqrt(GM/r)
+
