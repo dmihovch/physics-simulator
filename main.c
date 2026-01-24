@@ -54,7 +54,6 @@ int main(/* int argc, char** argv */){
 	int rendered_particles = opts.nparticles;
 	bool running = true;
 	SetTargetFPS(FPS);
-	int err;
 	while(!WindowShouldClose() && GetKeyPressed() != KEY_Q)
 	{
 		frametime_start = GetTime();

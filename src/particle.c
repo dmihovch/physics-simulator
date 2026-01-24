@@ -1,6 +1,5 @@
 #include "../include/particle.h"
 #include <raylib.h>
-#include <raymath.h>
 
 Particle* alloc_rand_nparticles(int n)
 {
