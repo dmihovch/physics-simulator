@@ -25,26 +25,16 @@ int main(/* int argc, char** argv */){
 	{
 		return 1;
 	}
-	srand(time(NULL));
+	srand(0);
 
-	Options opts = {10.,DEFAULT_GRAVITY, DEFAULT_DT};
+	Options opts = {DEFAULT_PARTICLES,DEFAULT_GRAVITY, DEFAULT_DT};
 
-	Particle* particles = alloc_rand_nparticles((int)opts.nparticles);
+	Particle* particles = alloc_rand_nparticles(DEFAULT_PARTICLES);
 	if(particles == NULL){
 		CloseWindow();
 		return 1;
 	}
 	
-	particles[0] = (Particle)
-	{
-		.pos = {WIDTH/2.,HEIGHT/2.},
-		.vel = {0,0},
-		.acc = {0,0},
-		.r = 10.,
-		.m = 1000.,
-		.color = YELLOW
-	};
-
 	double frametime_start;
 	double render_start;
 	double update_start;
