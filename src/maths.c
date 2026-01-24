@@ -1,5 +1,4 @@
 #include "../include/maths.h"
-#include <raylib.h>
 
 float vec2_distance_squared(Vector2 a, Vector2 b)
 {

@@ -1,6 +1,6 @@
 #ifndef PHYSICS_H
 #define PHYSICS_H
-#include "particle.h"
+#include "entities.h"
 #include "constants.h"
 #include "maths.h"
 #include <math.h>
@@ -16,13 +16,13 @@ typedef struct
 
 
 
-void update_particles(Particle* p, Options opts);
-void reset_accelerations(Particle* p, Options opts);
-void accumulate_forces(Particle* p, Options opts);
-void move_particles_handle_walls(Particle* p, Options opts);
-void handle_particle_collisions(Particle* p, Options opts);
+void update_entities(Entities* e, Options opts);
+void reset_accelerations(Entities* e);
+void accumulate_forces(Entities* e, Options opts);
+void move_entities_handle_walls(Entities* e, Options opts);
+void handle_entity_collisions(Entities* e);
 Vector2 check_collisions_circles(float* scalar_dist,Vector2 apos, float ar, Vector2 bpos, float br);
-float calculate_impulse(Particle a, Particle b, Vector2 normal);
+float calculate_impulse(Entities* e, size_t a_idx, size_t b_idx, Vector2 normal);
 bool collision_occured(Vector2 normal);
-void handle_penetration(Particle* a, Particle* b,Vector2 normal, float scalar_distance);
+void handle_penetration(Entities* e, size_t a_idx, size_t b_idx, Vector2 normal, float scalar_distance);
 #endif //PHYSICS_H

@@ -1,17 +1,15 @@
 #include "../include/drawing.h"
-void draw_particles(Particle* p, int n)
+void draw_entities(Entities e)
 {
-	for(int i = 0; i<n; ++i)
+	for(size_t i = 0; i<e.n_ents; ++i)
 	{
-		DrawCircle(p[i].pos.x, p[i].pos.y,p[i].r, p[i].color);
+		DrawCircle(e.pos[i].x, e.pos[i].y,e.r[i], e.color[i]);
 	}
-	return;
 }
 
 
 int draw_diagnostics(double frametime_start, double frametime_end, double render_start, double render_end, double update_start, double update_end)
 {
-
 
 		double tft = 1000 * (frametime_end - frametime_start);
 		double trt = 1000 * (render_end - render_start);
