@@ -1,8 +1,11 @@
 #define RAYGUI_IMPLEMENTATION
 #include "include/drawing.h"
-#include "include/particle.h"
+#include "include/entities.h"
 #include "include/physics.h"
 #include <raylib.h>
+#ifndef RAYLIB
+#define RAYLIB
+#endif //RAYLIB
 
 /*
  *
@@ -25,33 +28,26 @@ int main(/* int argc, char** argv */){
 	{
 		return 1;
 	}
-	srand(time(NULL));
+	// srand(time(NULL));
+	srand(0);
 
-	Options opts = {10.,DEFAULT_GRAVITY, DEFAULT_DT};
+	Options opts = {DEFAULT_PARTICLES,DEFAULT_GRAVITY, DEFAULT_DT};
 
-	Particle* particles = alloc_rand_nparticles((int)opts.nparticles);
-	if(particles == NULL){
+	Entities entities = {.n_ents = DEFAULT_PARTICLES};
+	int err = alloc_rand_entities(&entities);
+	if(err)
+	{
+		check_free(entities);
 		CloseWindow();
 		return 1;
 	}
 	
-	particles[0] = (Particle)
-	{
-		.pos = {WIDTH/2.,HEIGHT/2.},
-		.vel = {0,0},
-		.acc = {0,0},
-		.r = 10.,
-		.m = 1000.,
-		.color = YELLOW
-	};
-
 	double frametime_start;
 	double render_start;
 	double update_start;
 	double frametime_end;
 	double render_end;
 	double update_end;
-	int rendered_particles = opts.nparticles;
 	bool running = true;
 	SetTargetFPS(FPS);
 	while(!WindowShouldClose() && GetKeyPressed() != KEY_Q)
@@ -64,18 +60,18 @@ int main(/* int argc, char** argv */){
 		}
 
 		Options sopts = opts;
-		if((int)sopts.nparticles > rendered_particles)
+		if((size_t)sopts.nparticles > entities.n_ents)
 		{
-			particles = realloc_rand_nparticles(particles,(int)sopts.nparticles,rendered_particles);
-			if(particles == NULL)
+			err = realloc_rand_nentities(&entities,(int)sopts.nparticles);
+			if(err)
 			{
 				break;
 			}
 		}
 
-		if((int)sopts.nparticles != rendered_particles)
+		if((size_t)sopts.nparticles != entities.n_ents)
 		{
-			rendered_particles = (int)sopts.nparticles;	
+			entities.n_ents = (size_t)sopts.nparticles;	
 		}
 
 	
@@ -87,11 +83,11 @@ int main(/* int argc, char** argv */){
 		if(running)
 		{
 			render_start = GetTime();
-			draw_particles(particles, (int)sopts.nparticles);
+			draw_entities(entities);
 			render_end = GetTime();
 
 			update_start = GetTime();
-			update_particles(particles, sopts);
+			update_entities(&entities, sopts);
 			update_end = GetTime();
 
 		}
@@ -113,7 +109,7 @@ int main(/* int argc, char** argv */){
 	}
 
 
-	free(particles);
+	check_free(entities);
 	CloseWindow();
 	return 0;
 }
