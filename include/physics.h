@@ -4,6 +4,7 @@
 #include "constants.h"
 #include "maths.h"
 #include <math.h>
+#include <pthread.h>
 typedef struct
 {
 	float nparticles; 
@@ -14,8 +15,20 @@ typedef struct
 	// float rand_m_range; // 0.001 - rand_m_range
 }Options;
 
+typedef struct 
+{
+	Entities* e;
+	//[start,end)
+	size_t start,end;
+} ThreadPayload;
 
 
+
+//threaded
+void* threaded_reset_accelerations(void* payload);
+
+
+//not threaded
 void update_entities(Entities* e, Options opts);
 void reset_accelerations(Entities* e);
 void accumulate_forces(Entities* e, Options opts);

@@ -3,6 +3,7 @@
 #define WIDTH 1280
 #define HEIGHT 960
 #define FPS 60
+#define THREADS 6
 #define DEFAULT_PARTICLES 1000
 #define DEFAULT_DT 1./60
 #define ELASTICITY 1.
