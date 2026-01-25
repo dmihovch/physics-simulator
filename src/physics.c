@@ -117,8 +117,14 @@ void* threaded_entity_collisions(void* payload)
 	size_t start = tpay->start;
 	size_t end = tpay->end;
 	
+	Vector2 tmp_pos[e->n_ents];
+	Vector2 tmp_vel[e->n_ents];
+
 	for(size_t i = start; i<end; i++)
 	{
+		tmp_vel[i] = (Vector2){0,0};
+		tmp_pos[i] = (Vector2){0,0};
+
 		for(size_t j = i+1; j<e->n_ents; ++j)
 		{
 			float scalar_dist;	
@@ -137,6 +143,23 @@ void* threaded_entity_collisions(void* payload)
 			}
 		}
 	}
+
+
+	pthread_mutex_lock(&hec_vel);
+	pthread_mutex_lock(&hec_pos);
+	for(size_t i = start; i<end; i++)
+	{
+		for(size_t j = i+1; j<e->n_ents; ++i)
+		{
+			vec2_add_ip(&e->vel[i], tmp_vel[i]);
+			vec2_add_ip(&e->vel[j],tmp_vel[j]);
+			vec2_sub_ip(&e->pos[i], tmp_pos[i]);
+			vec2_add_ip(&e->pos[j], tmp_pos[j]);
+		}
+	}
+	pthread_mutex_unlock(&hec_pos);
+	pthread_mutex_unlock(&hec_vel);
+
 	return NULL;
 }
 
