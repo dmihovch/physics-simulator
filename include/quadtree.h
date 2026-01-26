@@ -1,5 +1,9 @@
+#ifndef QUADTREE_H
+#define QUADTREE_H
+#include <stdio.h>
 #include "maths.h"
 #include "constants.h"
+#include "entities.h"
 
 #define NODES_MULT 6
 
@@ -18,5 +22,8 @@ typedef struct QNode
 	Quadrand quad;
 } QNode;
 
-QNode* get_clean_node(QNode* node_pool);
+int init_node_pool();
+QNode* get_next_node();
+int build_quadtree(Entities* e);
 
+#endif //QUADTREE_H

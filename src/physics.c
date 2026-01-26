@@ -25,7 +25,7 @@ void reset_accelerations(Entities* e)
 	pthread_t threads[THREADS];
 	ThreadPayload payload[THREADS];
 
-	size_t ents = e->n_ents;
+	size_t ents = e->nents;
 	size_t base = ents/THREADS;
 	size_t remainder = ents%THREADS;
 
@@ -56,9 +56,9 @@ void reset_accelerations(Entities* e)
 
 void accumulate_forces(Entities* e, Options opts)
 {
-	for(size_t i = 0; i<e->n_ents; ++i)
+	for(size_t i = 0; i<e->nents; ++i)
 	{
-		for(size_t j = i + 1; j<e->n_ents; ++j)
+		for(size_t j = i + 1; j<e->nents; ++j)
 		{
 			//calculate the forces for both i and j
 			//inverse square law
@@ -78,7 +78,7 @@ void accumulate_forces(Entities* e, Options opts)
 
 void move_entities_handle_walls(Entities* e, Options opts)
 {
-	for(size_t i = 0; i<e->n_ents; ++i)
+	for(size_t i = 0; i<e->nents; ++i)
 	{
 		vec2_add_ip(&e->vel[i],vec2_scalar_mult(e->acc[i], opts.timestep));
 		vec2_add_ip(&e->pos[i],vec2_scalar_mult(e->vel[i], opts.timestep));
@@ -117,15 +117,15 @@ void* threaded_entity_collisions(void* payload)
 	size_t start = tpay->start;
 	size_t end = tpay->end;
 	
-	Vector2 tmp_pos[e->n_ents];
-	Vector2 tmp_vel[e->n_ents];
+	Vector2 tmp_pos[e->nents];
+	Vector2 tmp_vel[e->nents];
 
 	for(size_t i = start; i<end; i++)
 	{
 		tmp_vel[i] = (Vector2){0,0};
 		tmp_pos[i] = (Vector2){0,0};
 
-		for(size_t j = i+1; j<e->n_ents; ++j)
+		for(size_t j = i+1; j<e->nents; ++j)
 		{
 			float scalar_dist;	
 			pthread_mutex_lock(&hec_pos);
@@ -149,7 +149,7 @@ void* threaded_entity_collisions(void* payload)
 	pthread_mutex_lock(&hec_pos);
 	for(size_t i = start; i<end; i++)
 	{
-		for(size_t j = i+1; j<e->n_ents; ++i)
+		for(size_t j = i+1; j<e->nents; ++i)
 		{
 			vec2_add_ip(&e->vel[i], tmp_vel[i]);
 			vec2_add_ip(&e->vel[j],tmp_vel[j]);
@@ -175,10 +175,10 @@ void handle_entity_collisions(Entities* e)
 	for(int i = 0; i < THREADS; ++i)
 	{
 		int range_weight = i+1;
-		int range_length = (range_weight * e->n_ents) / total_weight;
+		int range_length = (range_weight * e->nents) / total_weight;
 		if(i == THREADS - 1)
 		{
-			range_length = e->n_ents - start;
+			range_length = e->nents - start;
 		}
 		int end = start + range_length;
 		payload[i].start = start;

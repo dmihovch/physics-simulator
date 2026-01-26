@@ -12,7 +12,7 @@
 #include "time.h"
 
 typedef struct {
-	size_t n_ents;
+	size_t nents;
 	Vector2* pos;
 	Vector2* vel;
 	Vector2* acc;
