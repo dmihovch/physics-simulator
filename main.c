@@ -23,7 +23,7 @@
  * */
 
 int main(/* int argc, char** argv */){
-	InitWindow(WIDTH, HEIGHT, "Particle Simulation [ NAIVE ]");
+	InitWindow(1280, 1000, "Particle Simulation [ NAIVE ]");
 	if(!IsWindowReady())
 	{
 		return 1;

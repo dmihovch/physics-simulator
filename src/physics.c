@@ -66,7 +66,7 @@ void accumulate_forces(Entities* e, Options opts)
 			float distsq = vec2_dot(delta, delta);
 			float dist = sqrtf(distsq);
 			Vector2 rhat = vec2_scalar_mult(delta, 1/dist);
-			float grav_mass_dist = (opts.gravity*e->m[i]*e->m[j]) / distsq;
+			float grav_mass_dist = (opts.gravity*e->m[i]*e->m[j]) / (distsq + SOFTENING);
 			Vector2 force = vec2_scalar_mult(rhat, grav_mass_dist);
 			Vector2 force_mass_pofi = vec2_scalar_mult(force, 1/e->m[i]);
 			Vector2 force_mass_pofj = vec2_scalar_mult(force, 1/e->m[j]);
@@ -83,9 +83,9 @@ void move_entities_handle_walls(Entities* e, Options opts)
 		vec2_add_ip(&e->vel[i],vec2_scalar_mult(e->acc[i], opts.timestep));
 		vec2_add_ip(&e->pos[i],vec2_scalar_mult(e->vel[i], opts.timestep));
 
-		if(e->pos[i].x + e->r[i] > WIDTH)
+		if(e->pos[i].x + e->r[i] > SIM_WIDTH)
 		{
-			e->pos[i].x = WIDTH - e->r[i];
+			e->pos[i].x = SIM_WIDTH - e->r[i];
 			e->vel[i].x = -e->vel[i].x * ELASTICITY;
 		}
 		else if(e->pos[i].x - e->r[i] < 0)
@@ -93,9 +93,9 @@ void move_entities_handle_walls(Entities* e, Options opts)
 			e->pos[i].x = e->r[i];
 			e->vel[i].x = -e->vel[i].x * ELASTICITY;
 		}
-		if(e->pos[i].y + e->r[i] > HEIGHT)
+		if(e->pos[i].y + e->r[i] > SIM_HEIGHT)
 		{
-			e->pos[i].y = HEIGHT - e->r[i];
+			e->pos[i].y = SIM_HEIGHT - e->r[i];
 			e->vel[i].y = -e->vel[i].y * ELASTICITY;
 		}
 		else if(e->pos[i].y - e->r[i] < 0)

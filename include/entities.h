@@ -10,6 +10,7 @@
 #include "constants.h"
 #include "maths.h"
 #include "time.h"
+
 typedef struct {
 	size_t n_ents;
 	Vector2* pos;
@@ -25,4 +26,5 @@ int realloc_rand_nentities(Entities* p, size_t new_n);
 int check_free(Entities e);
 float rand_float(float tmin, float tmax);
 Color rand_color();
+
 #endif //ENTITY_H

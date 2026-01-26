@@ -1,12 +1,13 @@
 #ifndef CONSTS_H
 #define CONSTS_H
-#define WIDTH 1280
-#define HEIGHT 960
+#define SIM_WIDTH 1000
+#define SIM_HEIGHT 1000
 #define FPS 60
 #define THREADS 6
 #define DEFAULT_PARTICLES 1000
-#define DEFAULT_DT 1./60
-#define ELASTICITY 1.
-#define PERCENT_CORRECTION 0.5
-#define DEFAULT_GRAVITY 9.8
+#define DEFAULT_DT 1.0f/60
+#define SOFTENING 0.1f
+#define ELASTICITY 1.0f
+#define PERCENT_CORRECTION 0.5f
+#define DEFAULT_GRAVITY 9.8f
 #endif //CONSTS_H

@@ -15,6 +15,7 @@ typedef struct
 	// float rand_m_range; // 0.001 - rand_m_range
 }Options;
 
+
 typedef struct 
 {
 	Entities* e;
