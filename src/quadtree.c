@@ -1,9 +1,5 @@
 #include "../include/quadtree.h"
 
-#define NE 1
-#define NW 2
-#define SE 3
-#define SW 4
 
 static QNode* node_pool;
 static size_t node_pool_len = DEFAULT_PARTICLES*NODES_MULT;
@@ -19,7 +15,7 @@ int init_node_pool()
 	return 0;
 }
 
-QNode* get_next_node()
+QNode* get_next_node(Quadrant parent, enum Direction dir)
 {
 	if(next_free_node >= node_pool_len)
 	{
@@ -29,7 +25,48 @@ QNode* get_next_node()
 	QNode* node = &node_pool[next_free_node];
 	node->com = (Vector2){0.0f,0.0f};
 	node->cum_mass = 0.0f;
-	node->entity = LEAF;
+	node->entity = -1;
+
+	switch(dir)
+	{
+		case NE:
+			node->quad = (Quadrant){
+				.cx = parent.cx + parent.half/2,
+				.cy = parent.cy - parent.half/2,
+				.half = parent.half/2
+			};
+			break;
+		
+		case NW:
+			node->quad = (Quadrant){
+				.cx = parent.cx - parent.half/2,
+				.cy = parent.cy - parent.half/2,
+				.half = parent.half/2
+			};
+			break;
+
+		case SE:
+			node->quad = (Quadrant){
+				.cx = parent.cx + parent.half/2,
+				.cy = parent.cy + parent.half/2,
+				.half = parent.half/2
+			};
+			break;
+		
+		case SW:
+			node->quad = (Quadrant){
+				.cx = parent.cx - parent.half/2,
+				.cy = parent.cy + parent.half/2,
+				.half = parent.half/2
+			};
+			break;
+
+		default:
+			node->quad = parent;
+			break;
+	}
+	
+
 	for(int i = 0; i<4; ++i)
 	{
 		node->quads[i] = NULL;
@@ -43,19 +80,16 @@ int build_quadtree(Entities* e)
 {
 	next_free_node = 0;	
 
-	QNode* root = get_next_node();
-	root->com = e->pos[0];
-	root->cum_mass = e->m[0];
-	root->entity = 0;
-	root->quad = 
-		(Quadrant)
+	QNode* root = get_next_node((Quadrant)
 		{
 			.cx = (SIM_MAX_WIDTH_COORD+SIM_MIN_WIDTH_COORD)/2,
 			.cy = (SIM_MAX_HEIGHT_COORD+SIM_MIN_HEIGHT_COORD)/2,
 			.half = SIM_DIM/2,
-		};
-
-	QNode* node;
+		}, -1);
+	root->com = e->pos[0];
+	root->cum_mass = e->m[0];
+	root->entity = 0;
+		QNode* node;
 	for(size_t i = 1; i<e->nents; ++i)
 	{
 			insert_qentity(e->root,e,i);
@@ -65,47 +99,72 @@ int build_quadtree(Entities* e)
 	
 }
 
-int get_quadrant(QNode* node, Vector2 pos)
+enum Direction get_quadrant(QNode* node, Vector2 pos)
 {
-	bool allnull = true;
-	for(int i = 0; i<4; i++)
+	Quadrant quad = node->quad;
+	bool positive_x = (pos.x >= quad.cx);
+	bool positive_y = (pos.y >= quad.cy);
+	if(positive_x) //East
+	{
+		if(positive_y)	
+		{
+			return SE;
+		}
+		return NE;
+	}
+	//West
+	if(positive_y)
+	{
+		return SW;
+	}
+	return NW;
+}
+
+bool is_leaf(QNode* node)
+{
+	for(int i = 0; i<4; ++i)
 	{
 		if(node->quads[i] != NULL)
 		{
-			allnull = false;
-			break;
+			return false;
 		}
 	}
-	if(allnull)
-	{
-		return LEAF;
-	}
-
-
-	//get the actual quadrant
-
+	return true;
 }
 
 void insert_qentity(QNode* node, Entities* e, size_t i)
 {
-
 	vec2_add_ip(&node->com,vec2_scalar_mult(e->pos[i],e->m[i]));
 	node->cum_mass += e->m[i];
-	if(node->entity != -1)
+	if(node->entity != -1) //subdivide
 	{
-		//subdivide
+		node->quads[NE] = get_next_node(node->quad,NE);
+		node->quads[NW] = get_next_node(node->quad,NW);
+		node->quads[SE] = get_next_node(node->quad,SE);
+		node->quads[SW] = get_next_node(node->quad,SW);
+
+		enum Direction new_par_dir = get_quadrant(node, e->pos[node->entity]);
+		enum Direction new_node_dir = get_quadrant(node, e->pos[i]);
+		
+		insert_qentity(node->quads[new_par_dir],e,node->entity);
+		insert_qentity(node->quads[new_node_dir],e,i);
+		node->entity = -1;
 		return;
 	}
+
+
+	//internal or leaf
 	if(node->entity == -1 )
 	{
-
-		int quad = get_quadrant(node,e->pos[i]);
-		if(quad == LEAF)
+		if(is_leaf(node))
 		{
-			//leaf, copy data
+			node->com = e->pos[i];
+			node->cum_mass = e->m[i];
+			node->entity = i;
 			return;
 		}
 
+		enum Direction quad = get_quadrant(node,e->pos[i]);
 		insert_qentity(node->quads[quad],e,i);
 		return;
 	}

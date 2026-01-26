@@ -6,11 +6,14 @@
 #include "maths.h"
 #include "constants.h"
 #define NODES_MULT 6
-#define LEAF -1
-#define NE 0
-#define NW 1
-#define SE 2
-#define SW 3
+
+enum Direction 
+{
+	NE,
+	NW,
+	SE,
+	SW
+};
 
 typedef struct 
 {
@@ -28,8 +31,8 @@ typedef struct QNode
 } QNode;
 
 int init_node_pool();
-QNode* get_next_node();
+QNode* get_next_node(Quadrant parent, enum Direction direction);
 int build_quadtree(Entities* e);
 void insert_qentity(QNode* root, Entities* e, size_t i);
-int get_quadrant(QNode* node, Vector2 pos);
+enum Direction get_quadrant(QNode* node, Vector2 pos);
 #endif //QUADTREE_H

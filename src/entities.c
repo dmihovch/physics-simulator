@@ -32,7 +32,7 @@ int alloc_rand_entities(Entities* e)
 
 void create_rand_entity(Entities* e, size_t i)
 {
-	e->pos[i] = (Vector2){rand_float(0,SIM_WIDTH),rand_float(0,SIM_HEIGHT)};
+	e->pos[i] = (Vector2){rand_float(SIM_MIN_WIDTH_COORD,SIM_MAX_WIDTH_COORD),rand_float(SIM_MIN_HEIGHT_COORD,SIM_MAX_HEIGHT_COORD)};
 	e->vel[i] = (Vector2){rand_float(-20.0,20.0),rand_float(-20.0,20.0)};
 	e->acc[i] = (Vector2){0,0};
 	e->r[i] = 5.;

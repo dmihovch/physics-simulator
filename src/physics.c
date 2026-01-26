@@ -83,24 +83,24 @@ void move_entities_handle_walls(Entities* e, Options opts)
 		vec2_add_ip(&e->vel[i],vec2_scalar_mult(e->acc[i], opts.timestep));
 		vec2_add_ip(&e->pos[i],vec2_scalar_mult(e->vel[i], opts.timestep));
 
-		if(e->pos[i].x + e->r[i] > SIM_WIDTH)
+		if(e->pos[i].x + e->r[i] > SIM_MAX_WIDTH_COORD)
 		{
-			e->pos[i].x = SIM_WIDTH - e->r[i];
+			e->pos[i].x = SIM_MAX_WIDTH_COORD - e->r[i];
 			e->vel[i].x = -e->vel[i].x * ELASTICITY;
 		}
-		else if(e->pos[i].x - e->r[i] < 0)
+		else if(e->pos[i].x - e->r[i] < SIM_MIN_WIDTH_COORD)
 		{
-			e->pos[i].x = e->r[i];
+			e->pos[i].x = SIM_MIN_WIDTH_COORD + e->r[i];
 			e->vel[i].x = -e->vel[i].x * ELASTICITY;
 		}
-		if(e->pos[i].y + e->r[i] > SIM_HEIGHT)
+		if(e->pos[i].y + e->r[i] > SIM_MAX_HEIGHT_COORD)
 		{
-			e->pos[i].y = SIM_HEIGHT - e->r[i];
+			e->pos[i].y = SIM_MAX_HEIGHT_COORD - e->r[i];
 			e->vel[i].y = -e->vel[i].y * ELASTICITY;
 		}
-		else if(e->pos[i].y - e->r[i] < 0)
+		else if(e->pos[i].y - e->r[i] < SIM_MIN_WIDTH_COORD)
 		{
-			e->pos[i].y = e->r[i];
+			e->pos[i].y = SIM_MIN_WIDTH_COORD + e->r[i];
 			e->vel[i].y = -e->vel[i].y * ELASTICITY;
 		}
 	}
