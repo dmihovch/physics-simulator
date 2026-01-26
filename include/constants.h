@@ -5,6 +5,7 @@
 #define FPS 60
 #define THREADS 6
 #define DEFAULT_PARTICLES 1000
+#define MAX_PARTICLES 3000
 #define DEFAULT_DT 1.0f/60
 #define SOFTENING 0.1f
 #define ELASTICITY 1.0f

@@ -1,15 +1,15 @@
-#ifndef ENTITY_H
-#define ENTITY_H
+#ifndef ENTITIES_H
+#define ENTITIES_H
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include "raylib.h"
-#ifndef RAYLIB
-#define RAYLIB
-#endif //RAYLIB
 #include "constants.h"
 #include "maths.h"
 #include "time.h"
+
+
+typedef struct QNode QNode;
 
 typedef struct {
 	size_t nents;
@@ -19,6 +19,7 @@ typedef struct {
 	float* r;
 	float* m;
 	Color* color;
+	QNode* root;
 }Entities;
 int alloc_rand_entities(Entities* e);
 void create_rand_entity(Entities* e, size_t i);

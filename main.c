@@ -33,7 +33,7 @@ int main(/* int argc, char** argv */){
 
 	Options opts = {DEFAULT_PARTICLES,DEFAULT_GRAVITY, DEFAULT_DT};
 
-	Entities entities = {.n_ents = DEFAULT_PARTICLES};
+	Entities entities = {.nents = DEFAULT_PARTICLES};
 	int err = alloc_rand_entities(&entities);
 	if(err)
 	{
@@ -60,7 +60,7 @@ int main(/* int argc, char** argv */){
 		}
 
 		Options sopts = opts;
-		if((size_t)sopts.nparticles > entities.n_ents)
+		if((size_t)sopts.nparticles > entities.nents)
 		{
 			err = realloc_rand_nentities(&entities,(int)sopts.nparticles);
 			if(err)
@@ -69,9 +69,9 @@ int main(/* int argc, char** argv */){
 			}
 		}
 
-		if((size_t)sopts.nparticles != entities.n_ents)
+		if((size_t)sopts.nparticles != entities.nents)
 		{
-			entities.n_ents = (size_t)sopts.nparticles;	
+			entities.nents = (size_t)sopts.nparticles;	
 		}
 
 	

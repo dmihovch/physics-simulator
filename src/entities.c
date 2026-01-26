@@ -3,12 +3,12 @@
 int alloc_rand_entities(Entities* e)
 {
 
-	e->pos = malloc(e->n_ents*sizeof(Vector2));
-	e->vel = malloc(e->n_ents*sizeof(Vector2));
-	e->acc = malloc(e->n_ents*sizeof(Vector2));
-	e->r = malloc(e->n_ents*sizeof(float));
-	e->m = malloc(e->n_ents*sizeof(float));
-	e->color = malloc(e->n_ents*sizeof(Color));
+	e->pos = malloc(e->nents*sizeof(Vector2));
+	e->vel = malloc(e->nents*sizeof(Vector2));
+	e->acc = malloc(e->nents*sizeof(Vector2));
+	e->r = malloc(e->nents*sizeof(float));
+	e->m = malloc(e->nents*sizeof(float));
+	e->color = malloc(e->nents*sizeof(Color));
 
 	if(e->pos == NULL ||
 	   e->vel == NULL ||
@@ -21,7 +21,7 @@ int alloc_rand_entities(Entities* e)
 		return 1;
 	}
 
-	for(size_t i = 0; i < e->n_ents; ++i)
+	for(size_t i = 0; i < e->nents; ++i)
 	{
 		create_rand_entity(e,i);
 	}
@@ -82,7 +82,7 @@ int realloc_rand_nentities(Entities* e, size_t new_nents)
 	size_t float_nents = sizeof(float) * new_nents;
 
 	Entities tmp = {0};
-	tmp.n_ents = new_nents;
+	tmp.nents = new_nents;
 	tmp.pos = realloc(e->pos, vec2_nents);
 	tmp.vel = realloc(e->vel,vec2_nents);
 	tmp.acc = realloc(e->acc, vec2_nents);
@@ -103,9 +103,9 @@ int realloc_rand_nentities(Entities* e, size_t new_nents)
 		return 1;
 	}
 
-	size_t old_nents = e->n_ents;
+	size_t old_nents = e->nents;
 
-	e->n_ents = tmp.n_ents;
+	e->nents = tmp.nents;
 	e->pos = tmp.pos;
 	e->vel = tmp.vel;
 	e->acc = tmp.acc;

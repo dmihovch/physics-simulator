@@ -34,7 +34,24 @@ QNode* get_next_node()
 
 int build_quadtree(Entities* e)
 {
+	next_free_node = 0;	
+	QNode* node;
+	for(size_t i = 0; i<e->nents; ++i)
+	{
+		node = get_next_node();
+		node->com = e->pos[i];
+		node->cum_mass = e->m[i];
+		node->e_idx = i;
+		insert_qnode(e->root, node);
+	}
+
+	return 0;
 	
+}
+
+void insert_qnode(QNode* root, QNode* node)
+{
+
 }
 
 
