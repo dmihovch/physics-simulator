@@ -1,7 +1,12 @@
 #ifndef CONSTS_H
 #define CONSTS_H
-#define SIM_WIDTH 1000
-#define SIM_HEIGHT 1000
+#define SCREEN_WIDTH 1280
+#define HEIGHT 960
+#define SIM_DIM 800 
+#define SIM_MAX_WIDTH_COORD 960 
+#define SIM_MIN_WIDTH_COORD 160
+#define SIM_MAX_HEIGHT_COORD 800 
+#define SIM_MIN_HEIGHT_COORD 0
 #define FPS 60
 #define THREADS 6
 #define DEFAULT_PARTICLES 1000

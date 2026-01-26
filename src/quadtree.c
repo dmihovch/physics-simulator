@@ -27,6 +27,13 @@ QNode* get_next_node()
 		return NULL;
 	}
 	QNode* node = &node_pool[next_free_node];
+	node->com = (Vector2){0.0f,0.0f};
+	node->cum_mass = 0.0f;
+	node->entity = LEAF;
+	for(int i = 0; i<4; ++i)
+	{
+		node->quads[i] = NULL;
+	}
 	next_free_node++;
 	return node;
 }
@@ -35,22 +42,73 @@ QNode* get_next_node()
 int build_quadtree(Entities* e)
 {
 	next_free_node = 0;	
+
+	QNode* root = get_next_node();
+	root->com = e->pos[0];
+	root->cum_mass = e->m[0];
+	root->entity = 0;
+	root->quad = 
+		(Quadrant)
+		{
+			.cx = (SIM_MAX_WIDTH_COORD+SIM_MIN_WIDTH_COORD)/2,
+			.cy = (SIM_MAX_HEIGHT_COORD+SIM_MIN_HEIGHT_COORD)/2,
+			.half = SIM_DIM/2,
+		};
+
 	QNode* node;
-	for(size_t i = 0; i<e->nents; ++i)
+	for(size_t i = 1; i<e->nents; ++i)
 	{
-		node = get_next_node();
-		node->com = e->pos[i];
-		node->cum_mass = e->m[i];
-		node->e_idx = i;
-		insert_qnode(e->root, node);
+			insert_qentity(e->root,e,i);
 	}
 
 	return 0;
 	
 }
 
-void insert_qnode(QNode* root, QNode* node)
+int get_quadrant(QNode* node, Vector2 pos)
 {
+	bool allnull = true;
+	for(int i = 0; i<4; i++)
+	{
+		if(node->quads[i] != NULL)
+		{
+			allnull = false;
+			break;
+		}
+	}
+	if(allnull)
+	{
+		return LEAF;
+	}
+
+
+	//get the actual quadrant
+
+}
+
+void insert_qentity(QNode* node, Entities* e, size_t i)
+{
+
+	vec2_add_ip(&node->com,vec2_scalar_mult(e->pos[i],e->m[i]));
+	node->cum_mass += e->m[i];
+	if(node->entity != -1)
+	{
+		//subdivide
+		return;
+	}
+	if(node->entity == -1 )
+	{
+
+		int quad = get_quadrant(node,e->pos[i]);
+		if(quad == LEAF)
+		{
+			//leaf, copy data
+			return;
+		}
+
+		insert_qentity(node->quads[quad],e,i);
+		return;
+	}
 
 }
 
