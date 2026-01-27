@@ -8,8 +8,31 @@
 #include "maths.h"
 #include "time.h"
 
+#define BH_THETA 0.5f
+enum Direction 
+{
+	NE,
+	NW,
+	SE,
+	SW
+};
 
-typedef struct QNode QNode;
+typedef struct 
+{
+	int cx,cy,half;
+}Quadrant;
+
+typedef struct QNode
+{
+	//-1 if an internal node or leaf
+	int entity;
+	float cum_mass;
+	Vector2 com;
+	Quadrant quad;
+	struct QNode* quads[4];
+} QNode;
+
+
 
 typedef struct {
 	size_t nents;

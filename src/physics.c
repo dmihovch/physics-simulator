@@ -4,17 +4,22 @@
 
 void update_entities(Entities* e, Options opts)
 {
+	printf("in update\n");
 	reset_accelerations(e);
+	printf("past reset\n");
 	accumulate_forces(e,opts);
+	printf("past accumulate\n");
 	move_entities_handle_walls(e,opts);
+	printf("past move\n");
 	handle_entity_collisions(e);
+	printf("past handle\n");
 }
 
 void* threaded_reset_accelerations(void* payload)
 {
 	ThreadPayload* tpayload = (ThreadPayload*)payload;
 	Entities* e = tpayload->e;
-	for(size_t i = tpayload->start; i<=tpayload->end; ++i)
+	for(size_t i = tpayload->start; i<tpayload->end; ++i)
 	{
 		vec2_zero(&e->acc[i]);
 	}
@@ -54,26 +59,61 @@ void reset_accelerations(Entities* e)
 	}
 }
 
+
+void grav_force_calculation(Entities* e, QNode* node, size_t i, float gravity, Vector2 delta, float d2)
+{
+	float dist = sqrtf(d2);
+	Vector2 rhat = vec2_scalar_mult(delta, 1/dist);
+	float grav_mass_dist = (gravity * e->m[i] * node->cum_mass) / (d2 + SOFTENING);
+	Vector2 force = vec2_scalar_mult(rhat, grav_mass_dist);
+	Vector2 force_mass = vec2_scalar_mult(force, 1/e->m[i]);
+	vec2_add_ip(&e->acc[i], force_mass);
+	return;
+}
+
+void accumulate_forces_from_tree(Entities* e, QNode* node, int i, float gravity)
+{
+	if(node == NULL)
+	{
+		return;
+	}
+	if(node->entity == i) 
+	{
+		return;
+	}
+	Vector2 delta = vec2_sub(node->com,e->pos[i]);
+	float d2 = vec2_dot(delta,delta);
+	if(node->entity != -1)
+	{
+		grav_force_calculation(e,node,i,gravity,delta,d2);
+		return;
+	}
+	float width_s2 = (node->quad.half*2)*(node->quad.half*2);
+	if(d2 == 0. || width_s2 >= (BH_THETA*BH_THETA) * d2)
+	{
+		accumulate_forces_from_tree(e,node->quads[NE],i,gravity);
+		accumulate_forces_from_tree(e,node->quads[NW],i,gravity);
+		accumulate_forces_from_tree(e,node->quads[SE],i,gravity);
+		accumulate_forces_from_tree(e,node->quads[SW],i,gravity);
+		return;
+	}
+	grav_force_calculation(e,node,i,gravity,delta,d2);
+	return;
+}
+
 void accumulate_forces(Entities* e, Options opts)
 {
+	printf("in accumulate\n");
+
+	build_quadtree(e);
+	printf("past build\n");
 	for(size_t i = 0; i<e->nents; ++i)
 	{
-		for(size_t j = i + 1; j<e->nents; ++j)
-		{
-			//calculate the forces for both i and j
-			//inverse square law
-			Vector2 delta = vec2_sub(e->pos[j], e->pos[i]);
-			float distsq = vec2_dot(delta, delta);
-			float dist = sqrtf(distsq);
-			Vector2 rhat = vec2_scalar_mult(delta, 1/dist);
-			float grav_mass_dist = (opts.gravity*e->m[i]*e->m[j]) / (distsq + SOFTENING);
-			Vector2 force = vec2_scalar_mult(rhat, grav_mass_dist);
-			Vector2 force_mass_pofi = vec2_scalar_mult(force, 1/e->m[i]);
-			Vector2 force_mass_pofj = vec2_scalar_mult(force, 1/e->m[j]);
-			vec2_add_ip(&e->acc[i], force_mass_pofi);
-			vec2_sub_ip(&e->acc[j], force_mass_pofj);
-		}
+		printf("in %ld... ",i);
+		accumulate_forces_from_tree(e,e->root,(int)i,opts.gravity);
+		printf("past %ld\n",i);
 	}
+	
 }
 
 void move_entities_handle_walls(Entities* e, Options opts)
@@ -112,6 +152,7 @@ static pthread_mutex_t hec_vel = PTHREAD_MUTEX_INITIALIZER;
 
 void* threaded_entity_collisions(void* payload)
 {
+	printf("thread in entity col\n");
 	ThreadPayload* tpay = (ThreadPayload*)payload;
 	Entities* e = tpay->e;
 	size_t start = tpay->start;
@@ -163,7 +204,31 @@ void* threaded_entity_collisions(void* payload)
 	return NULL;
 }
 
-
+void handle_entity_collisions(Entities* e)
+{
+	for(size_t i = 0; i<e->nents; ++i)
+	{
+		for(size_t j = i+1; j<e->nents; ++j)
+		{
+			float scalar_dist;	
+			Vector2 normal = check_collisions_circles(&scalar_dist,e->pos[i], e->r[i], e->pos[j], e->r[j]);
+			if(collision_occured(normal)){
+				float impulse = calculate_impulse(e, i, j, normal);
+				Vector2 impulse_vector = vec2_scalar_mult(normal, impulse);
+				//this is messy, I don't like it, but it's not the point
+				vec2_add_ip(&e->vel[i], vec2_scalar_mult(impulse_vector, 1/e->m[i]));
+				vec2_add_ip(&e->vel[j], vec2_scalar_mult(impulse_vector, -(1/e->m[j])));
+				handle_penetration(e, i,j, normal, scalar_dist);
+			}
+		}
+	}
+}
+/*
+ *
+ *
+ *
+ *
+ * TS broken as hell and ugly too omm
 void handle_entity_collisions(Entities* e)
 {
 	pthread_t threads[THREADS];
@@ -171,7 +236,7 @@ void handle_entity_collisions(Entities* e)
 
 	int total_weight = THREADS * (THREADS + 1) / 2;
 
-	int start;
+	int start = 0;
 	for(int i = 0; i < THREADS; ++i)
 	{
 		int range_weight = i+1;
@@ -184,6 +249,8 @@ void handle_entity_collisions(Entities* e)
 		payload[i].start = start;
 		payload[i].end = end;
 		payload[i].e = e;
+
+		printf("payload[%d].start = %d\npayload[%d].end = %d\n",i,start,i,end);
 		
 		int err = pthread_create(&threads[i],NULL,threaded_entity_collisions,&payload[i]);
 		if(err)
@@ -199,7 +266,7 @@ void handle_entity_collisions(Entities* e)
 	}
 
 }
-
+*/
 void handle_penetration(Entities* e,size_t a_idx, size_t b_idx,	Vector2 normal, float scalar_distance)
 {
 	float penetration_distance = e->r[a_idx] + e->r[b_idx];

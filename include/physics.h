@@ -1,6 +1,7 @@
 #ifndef PHYSICS_H
 #define PHYSICS_H
 #include "entities.h"
+#include "quadtree.h"
 #include "constants.h"
 #include "maths.h"
 #include <math.h>

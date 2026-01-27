@@ -2,7 +2,7 @@
 
 float vec2_distance_squared(Vector2 a, Vector2 b)
 {
-	Vector2 delta = vec2_sub(b,a);
+	Vector2 delta = vec2_sub(a,b);
 	return vec2_dot(delta,delta);
 }
 
@@ -46,8 +46,8 @@ void vec2_sub_ip(Vector2 *res, Vector2 v)
 
 void vec2_zero(Vector2* v)
 {
-	v->x = 0;
-	v->y = 0;
+	v->x = 0.;
+	v->y = 0.;
 }
 
 float vec2_dot(Vector2 a, Vector2 b)

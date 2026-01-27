@@ -2,6 +2,7 @@
 #include "include/drawing.h"
 #include "include/entities.h"
 #include "include/physics.h"
+#include "include/quadtree.h"
 #include <raylib.h>
 #ifndef RAYLIB
 #define RAYLIB
@@ -31,10 +32,19 @@ int main(/* int argc, char** argv */){
 	// srand(time(NULL));
 	srand(0);
 
+
 	Options opts = {DEFAULT_PARTICLES,DEFAULT_GRAVITY, DEFAULT_DT};
 
 	Entities entities = {.nents = DEFAULT_PARTICLES};
 	int err = alloc_rand_entities(&entities);
+	if(err)
+	{
+		check_free(entities);
+		CloseWindow();
+		return 1;
+	}
+
+	err = init_node_pool(entities.nents);
 	if(err)
 	{
 		check_free(entities);
@@ -50,6 +60,7 @@ int main(/* int argc, char** argv */){
 	double update_end;
 	bool running = true;
 	SetTargetFPS(FPS);
+
 	while(!WindowShouldClose() && GetKeyPressed() != KEY_Q)
 	{
 		frametime_start = GetTime();
@@ -85,10 +96,12 @@ int main(/* int argc, char** argv */){
 			render_start = GetTime();
 			draw_entities(entities);
 			render_end = GetTime();
+			printf("Made it past draw_entities\n");
 
 			update_start = GetTime();
 			update_entities(&entities, sopts);
 			update_end = GetTime();
+			printf("Made it past update_entiites\n");
 
 		}
 		else {
