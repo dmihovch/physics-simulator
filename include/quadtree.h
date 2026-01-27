@@ -5,7 +5,7 @@
 #include <assert.h>
 #include "maths.h"
 #include "constants.h"
-#define NODES_MULT 6
+#define NODES_MULT 64
 #define TREE_DEPTH_LIMITER 0.001f
 void free_node_pool(void);
 int init_node_pool(size_t nents);

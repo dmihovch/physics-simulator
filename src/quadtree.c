@@ -190,6 +190,7 @@ void insert_qentity(QNode* node, Entities* e, size_t i)
 			insert_qentity(node->quads[new_shared_dir],e,node->entity);
 		}
 		node->entity = -1;
+		return;
 	}
 
 
