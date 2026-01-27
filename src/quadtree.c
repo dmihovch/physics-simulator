@@ -13,6 +13,17 @@ void free_node_pool(void)
 	}
 }
 
+int realloc_node_pool(size_t nents)
+{
+	if(node_pool == NULL)
+	{
+		return 1;
+	}
+	
+	free(node_pool);
+	return init_node_pool(nents);
+}
+
 int init_node_pool(size_t nents)
 {
 	node_pool_len = nents*NODES_MULT;

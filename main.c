@@ -78,6 +78,7 @@ int main(/* int argc, char** argv */){
 			{
 				break;
 			}
+			err = realloc_node_pool((size_t)sopts.nparticles);
 		}
 
 		if((size_t)sopts.nparticles != entities.nents)

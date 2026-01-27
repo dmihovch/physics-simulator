@@ -15,48 +15,9 @@ void update_entities(Entities* e, Options opts)
 	// printf("past handle\n");
 }
 
-void* threaded_reset_accelerations(void* payload)
-{
-	ThreadPayload* tpayload = (ThreadPayload*)payload;
-	Entities* e = tpayload->e;
-	for(size_t i = tpayload->start; i<tpayload->end; ++i)
-	{
-		vec2_zero(&e->acc[i]);
-	}
-	return NULL;
-}
 void reset_accelerations(Entities* e)
 {
-	pthread_t threads[THREADS];
-	ThreadPayload payload[THREADS];
-
-	size_t ents = e->nents;
-	size_t base = ents/THREADS;
-	size_t remainder = ents%THREADS;
-
-	int current = 0;
-	int err;
-
-	for(int i = 0; i<THREADS; ++i)
-	{
-		size_t size = base + ((size_t)i < remainder ? 1 : 0);
-		payload[i].start = current;
-		payload[i].end = current + size;
-		current += size;
-		payload[i].e = e;
-		err = pthread_create(&threads[i],NULL,threaded_reset_accelerations,&payload[i]);
-		if(err)
-		{
-			//hopefully this never happens
-			//lol
-			printf("Thread %d failed to launch in reset_accelerations\n",i);
-		}
-
-	}
-	for(int i = 0; i<THREADS; ++i)
-	{
-		pthread_join(threads[i],NULL);
-	}
+	memset(e->acc,0,e->nents*sizeof(Vector2));
 }
 
 

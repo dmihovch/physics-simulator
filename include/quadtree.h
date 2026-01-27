@@ -13,4 +13,5 @@ QNode* get_next_node(Quadrant parent, enum Direction direction);
 int build_quadtree(Entities* e);
 void insert_qentity(QNode* root, Entities* e, size_t i);
 enum Direction get_quadrant(QNode* node, Vector2 pos);
+int realloc_node_pool(size_t nents);
 #endif //QUADTREE_H
