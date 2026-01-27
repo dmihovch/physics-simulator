@@ -6,6 +6,8 @@
 #include "maths.h"
 #include "constants.h"
 #define NODES_MULT 6
+#define TREE_DEPTH_LIMITER 0.001f
+void free_node_pool(void);
 int init_node_pool(size_t nents);
 QNode* get_next_node(Quadrant parent, enum Direction direction);
 int build_quadtree(Entities* e);

@@ -4,15 +4,15 @@
 
 void update_entities(Entities* e, Options opts)
 {
-	printf("in update\n");
+	// printf("in update\n");
 	reset_accelerations(e);
-	printf("past reset\n");
+	// printf("past reset\n");
 	accumulate_forces(e,opts);
-	printf("past accumulate\n");
+	// printf("past accumulate\n");
 	move_entities_handle_walls(e,opts);
-	printf("past move\n");
+	// printf("past move\n");
 	handle_entity_collisions(e);
-	printf("past handle\n");
+	// printf("past handle\n");
 }
 
 void* threaded_reset_accelerations(void* payload)
@@ -73,15 +73,12 @@ void grav_force_calculation(Entities* e, QNode* node, size_t i, float gravity, V
 
 void accumulate_forces_from_tree(Entities* e, QNode* node, int i, float gravity)
 {
-	if(node == NULL)
+	if(node == NULL || node->entity == i)
 	{
 		return;
 	}
-	if(node->entity == i) 
-	{
-		return;
-	}
-	Vector2 delta = vec2_sub(node->com,e->pos[i]);
+
+	Vector2 delta = vec2_sub(vec2_scalar_mult(node->com, 1.0f/node->cum_mass),e->pos[i]);
 	float d2 = vec2_dot(delta,delta);
 	if(node->entity != -1)
 	{
@@ -103,15 +100,15 @@ void accumulate_forces_from_tree(Entities* e, QNode* node, int i, float gravity)
 
 void accumulate_forces(Entities* e, Options opts)
 {
-	printf("in accumulate\n");
+	// printf("in accumulate\n");
 
 	build_quadtree(e);
-	printf("past build\n");
+	// printf("past build\n");
 	for(size_t i = 0; i<e->nents; ++i)
 	{
-		printf("in %ld... ",i);
+		// printf("in %ld... ",i);
 		accumulate_forces_from_tree(e,e->root,(int)i,opts.gravity);
-		printf("past %ld\n",i);
+		// printf("past %ld\n",i);
 	}
 	
 }
@@ -138,9 +135,9 @@ void move_entities_handle_walls(Entities* e, Options opts)
 			e->pos[i].y = SIM_MAX_HEIGHT_COORD - e->r[i];
 			e->vel[i].y = -e->vel[i].y * ELASTICITY;
 		}
-		else if(e->pos[i].y - e->r[i] < SIM_MIN_WIDTH_COORD)
+		else if(e->pos[i].y - e->r[i] < SIM_MIN_HEIGHT_COORD)
 		{
-			e->pos[i].y = SIM_MIN_WIDTH_COORD + e->r[i];
+			e->pos[i].y = SIM_MIN_HEIGHT_COORD + e->r[i];
 			e->vel[i].y = -e->vel[i].y * ELASTICITY;
 		}
 	}
@@ -152,7 +149,7 @@ static pthread_mutex_t hec_vel = PTHREAD_MUTEX_INITIALIZER;
 
 void* threaded_entity_collisions(void* payload)
 {
-	printf("thread in entity col\n");
+	// printf("thread in entity col\n");
 	ThreadPayload* tpay = (ThreadPayload*)payload;
 	Entities* e = tpay->e;
 	size_t start = tpay->start;

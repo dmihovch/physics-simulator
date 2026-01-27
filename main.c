@@ -86,9 +86,6 @@ int main(/* int argc, char** argv */){
 		}
 
 	
-			// realloc_nparticles(p, particles_count, particles_count+5);
-			// might handle this more gracefully later, but for now we can just not render and compute the particles that are 'removed'
-
 		BeginDrawing();
 		ClearBackground(BLACK);
 		if(running)
@@ -96,12 +93,12 @@ int main(/* int argc, char** argv */){
 			render_start = GetTime();
 			draw_entities(entities);
 			render_end = GetTime();
-			printf("Made it past draw_entities\n");
+			// printf("Made it past draw_entities\n");
 
 			update_start = GetTime();
 			update_entities(&entities, sopts);
 			update_end = GetTime();
-			printf("Made it past update_entiites\n");
+			// printf("Made it past update_entiites\n");
 
 		}
 		else {
@@ -121,7 +118,7 @@ int main(/* int argc, char** argv */){
 
 	}
 
-
+	free_node_pool();
 	check_free(entities);
 	CloseWindow();
 	return 0;

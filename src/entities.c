@@ -84,11 +84,35 @@ int realloc_rand_nentities(Entities* e, size_t new_nents)
 	Entities tmp = {0};
 	tmp.nents = new_nents;
 	tmp.pos = realloc(e->pos, vec2_nents);
+	if(tmp.pos != NULL)
+	{
+		e->pos = tmp.pos;
+	}
 	tmp.vel = realloc(e->vel,vec2_nents);
+	if(tmp.vel != NULL)
+	{
+		e->vel = tmp.vel;
+	}
 	tmp.acc = realloc(e->acc, vec2_nents);
+	if(tmp.acc != NULL)
+	{
+		e->acc = tmp.acc;
+	}
 	tmp.r = realloc(e->r, float_nents);
+	if(tmp.r != NULL)
+	{
+		e->r = tmp.r;
+	}
 	tmp.m = realloc(e->m, float_nents);
+	if(tmp.m != NULL)
+	{
+		e->m = tmp.m;
+	}
 	tmp.color = realloc(e->color, new_nents * sizeof(Color));
+	if(tmp.color != NULL)
+	{
+		e->color = tmp.color;
+	}
 
 	if(
 		tmp.pos == NULL ||
@@ -104,14 +128,6 @@ int realloc_rand_nentities(Entities* e, size_t new_nents)
 	}
 
 	size_t old_nents = e->nents;
-
-	e->nents = tmp.nents;
-	e->pos = tmp.pos;
-	e->vel = tmp.vel;
-	e->acc = tmp.acc;
-	e->r = tmp.r;
-	e->m = tmp.m;
-	e->color = tmp.color;
 
 	for(size_t i = old_nents; i<new_nents; ++i)
 	{

@@ -36,8 +36,7 @@ QNode* get_next_node(Quadrant parent, enum Direction dir)
 	{
 		return NULL;
 	}
-	node->com = (Vector2){0.0f,0.0f};
-	node->cum_mass = 0.0f;
+	memset(node,0,sizeof(QNode));
 	node->entity = -1;
 
 	switch(dir)
@@ -78,12 +77,6 @@ QNode* get_next_node(Quadrant parent, enum Direction dir)
 			node->quad = parent;
 			break;
 	}
-	
-
-	for(int i = 0; i<4; ++i)
-	{
-		node->quads[i] = NULL;
-	}
 	next_free_node++;
 	return node;
 }
@@ -91,7 +84,7 @@ QNode* get_next_node(Quadrant parent, enum Direction dir)
 
 int build_quadtree(Entities* e)
 {
-	printf("in build_quad\n");
+	// printf("in build_quad\n");
 	next_free_node = 0;	
 
 	e->root = get_next_node((Quadrant)
@@ -105,15 +98,12 @@ int build_quadtree(Entities* e)
 		printf("root is null\n");
 		return 1;
 	}
-	printf("got next node\n");
-	e->root->com = e->pos[0];
-	e->root->cum_mass = e->m[0];
-	e->root->entity = 0;
-	for(size_t i = 1; i<e->nents; ++i)
+	// printf("got next node\n");
+	for(size_t i = 0; i<e->nents; ++i)
 	{
-			printf("inserting %ld... ",i);
+			// printf("inserting %ld... ",i);
 			insert_qentity(e->root,e,i);
-			printf("done!\n");
+			// printf("done!\n");
 	}
 
 	return 0;
@@ -161,20 +151,34 @@ void insert_qentity(QNode* node, Entities* e, size_t i)
 	}
 	vec2_add_ip(&node->com,vec2_scalar_mult(e->pos[i],e->m[i]));
 	node->cum_mass += e->m[i];
-	if(node->entity != -1) //subdivide
+	if(node->entity != -1 && node->quad.half > TREE_DEPTH_LIMITER) //subdivide
 	{
-		node->quads[NE] = get_next_node(node->quad,NE);
-		node->quads[NW] = get_next_node(node->quad,NW);
-		node->quads[SE] = get_next_node(node->quad,SE);
-		node->quads[SW] = get_next_node(node->quad,SW);
-
 		enum Direction new_par_dir = get_quadrant(node, e->pos[node->entity]);
 		enum Direction new_node_dir = get_quadrant(node, e->pos[i]);
+		if(node->quads[new_par_dir] == NULL)
+		{
+			node->quads[new_par_dir] = get_next_node(node->quad,new_par_dir);
+		}
+		if(node->quads[new_node_dir] == NULL)
+		{
+			node->quads[new_node_dir] = get_next_node(node->quad, new_node_dir);
+		}
 		
 		insert_qentity(node->quads[new_par_dir],e,node->entity);
 		insert_qentity(node->quads[new_node_dir],e,i);
 		node->entity = -1;
 		return;
+	}
+	if(node->entity != -1 && node->quad.half <= TREE_DEPTH_LIMITER)
+	{
+		enum Direction new_shared_dir = get_quadrant(node,e->pos[node->entity]);
+		if(node->quads[new_shared_dir] == NULL)
+		{
+			node->quads[new_shared_dir] = get_next_node(node->quad,new_shared_dir);
+			node->quads[new_shared_dir]->cum_mass += e->m[i];
+			insert_qentity(node->quads[new_shared_dir],e,node->entity);
+		}
+		node->entity = -1;
 	}
 
 
@@ -183,13 +187,15 @@ void insert_qentity(QNode* node, Entities* e, size_t i)
 	{
 		if(is_empty_leaf(node))
 		{
-			node->com = e->pos[i];
-			node->cum_mass = e->m[i];
 			node->entity = i;
 			return;
 		}
 
 		enum Direction quad = get_quadrant(node,e->pos[i]);
+		if(node->quads[quad] == NULL)
+		{
+			node->quads[quad] = get_next_node(node->quad,quad);
+		}
 		insert_qentity(node->quads[quad],e,i);
 		return;
 	}
