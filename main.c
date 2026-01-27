@@ -4,9 +4,17 @@
 #include "include/physics.h"
 #include "include/quadtree.h"
 #include <raylib.h>
-#ifndef RAYLIB
-#define RAYLIB
-#endif //RAYLIB
+
+
+void create_sun(Entities* e)
+{
+	e->pos[0] = (Vector2){(SIM_MAX_WIDTH_COORD+SIM_MIN_WIDTH_COORD) / 2., (SIM_MAX_HEIGHT_COORD+SIM_MIN_HEIGHT_COORD)/2.};
+	e->vel[0] = (Vector2){0,0};
+	e->acc[0] = (Vector2){0,0};
+	e->r[0] = 25;
+	e->m[0] = 1000;
+	e->color[0] = YELLOW;
+}
 
 /*
  *
@@ -43,6 +51,7 @@ int main(/* int argc, char** argv */){
 		CloseWindow();
 		return 1;
 	}
+	create_sun(&entities);
 
 	err = init_node_pool(entities.nents);
 	if(err)
@@ -86,9 +95,10 @@ int main(/* int argc, char** argv */){
 			entities.nents = (size_t)sopts.nparticles;	
 		}
 
-	
 		BeginDrawing();
 		ClearBackground(BLACK);
+		DrawRectangleLines(SIM_MIN_WIDTH_COORD,SIM_MIN_HEIGHT_COORD,SIM_DIM,SIM_DIM,WHITE);
+		
 		if(running)
 		{
 			render_start = GetTime();

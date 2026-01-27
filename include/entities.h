@@ -34,6 +34,8 @@ typedef struct QNode
 
 
 
+
+
 typedef struct {
 	size_t nents;
 	Vector2* pos;

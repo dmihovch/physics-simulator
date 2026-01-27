@@ -2,17 +2,14 @@
 #define MATHS_H
 #include <stdlib.h>
 #include <raylib.h>
-/*
-//Since I use this with raylib a lot, I just wanted it to be seamlessly interoperable... Welp
-#ifndef RAYLIB
+//Since I use this with raylib a lot, I just wanted it to be seamlessly interoperable
+#ifdef MATHS_VEC
 
 typedef struct {
 	float x,y;
 }Vector2;
 
-#endif //RAYLIB
-
-*/
+#endif //MATHS_VEC
 
 //returns a random float [tmin,tmax]
 float rand_float(float tmin, float tmax);
