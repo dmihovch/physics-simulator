@@ -1,3 +1,12 @@
+
+
+GRID LAYOUT WITH DOUBLE BUFFERING
+
+
+-2) temp buffers in threads to get rid of mutexes
+-1) thread pool
+0) Barnes-Hut or proximity based update algo
+0.5) thread all physics
 1) Pick some sort of units
 3) Fix initial velocities based on distance from central mass v = sqrt(GM/r)
 

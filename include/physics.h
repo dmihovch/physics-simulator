@@ -1,9 +1,11 @@
 #ifndef PHYSICS_H
 #define PHYSICS_H
 #include "entities.h"
+#include "quadtree.h"
 #include "constants.h"
 #include "maths.h"
 #include <math.h>
+#include <pthread.h>
 typedef struct
 {
 	float nparticles; 
@@ -15,7 +17,20 @@ typedef struct
 }Options;
 
 
+typedef struct 
+{
+	Entities* e;
+	//[start,end)
+	size_t start,end;
+} ThreadPayload;
 
+
+
+//threaded
+void* threaded_reset_accelerations(void* payload);
+
+
+//not threaded
 void update_entities(Entities* e, Options opts);
 void reset_accelerations(Entities* e);
 void accumulate_forces(Entities* e, Options opts);

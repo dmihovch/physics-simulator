@@ -1,7 +1,7 @@
 #include "../include/drawing.h"
 void draw_entities(Entities e)
 {
-	for(size_t i = 0; i<e.n_ents; ++i)
+	for(size_t i = 0; i<e.nents; ++i)
 	{
 		DrawCircle(e.pos[i].x, e.pos[i].y,e.r[i], e.color[i]);
 	}

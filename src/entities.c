@@ -3,12 +3,12 @@
 int alloc_rand_entities(Entities* e)
 {
 
-	e->pos = malloc(e->n_ents*sizeof(Vector2));
-	e->vel = malloc(e->n_ents*sizeof(Vector2));
-	e->acc = malloc(e->n_ents*sizeof(Vector2));
-	e->r = malloc(e->n_ents*sizeof(float));
-	e->m = malloc(e->n_ents*sizeof(float));
-	e->color = malloc(e->n_ents*sizeof(Color));
+	e->pos = malloc(e->nents*sizeof(Vector2));
+	e->vel = malloc(e->nents*sizeof(Vector2));
+	e->acc = malloc(e->nents*sizeof(Vector2));
+	e->r = malloc(e->nents*sizeof(float));
+	e->m = malloc(e->nents*sizeof(float));
+	e->color = malloc(e->nents*sizeof(Color));
 
 	if(e->pos == NULL ||
 	   e->vel == NULL ||
@@ -21,7 +21,7 @@ int alloc_rand_entities(Entities* e)
 		return 1;
 	}
 
-	for(size_t i = 0; i < e->n_ents; ++i)
+	for(size_t i = 0; i < e->nents; ++i)
 	{
 		create_rand_entity(e,i);
 	}
@@ -32,7 +32,7 @@ int alloc_rand_entities(Entities* e)
 
 void create_rand_entity(Entities* e, size_t i)
 {
-	e->pos[i] = (Vector2){rand_float(0,WIDTH),rand_float(0,HEIGHT)};
+	e->pos[i] = (Vector2){rand_float(SIM_MIN_WIDTH_COORD,SIM_MAX_WIDTH_COORD),rand_float(SIM_MIN_HEIGHT_COORD,SIM_MAX_HEIGHT_COORD)};
 	e->vel[i] = (Vector2){rand_float(-20.0,20.0),rand_float(-20.0,20.0)};
 	e->acc[i] = (Vector2){0,0};
 	e->r[i] = 5.;
@@ -82,13 +82,37 @@ int realloc_rand_nentities(Entities* e, size_t new_nents)
 	size_t float_nents = sizeof(float) * new_nents;
 
 	Entities tmp = {0};
-	tmp.n_ents = new_nents;
+	tmp.nents = new_nents;
 	tmp.pos = realloc(e->pos, vec2_nents);
+	if(tmp.pos != NULL)
+	{
+		e->pos = tmp.pos;
+	}
 	tmp.vel = realloc(e->vel,vec2_nents);
+	if(tmp.vel != NULL)
+	{
+		e->vel = tmp.vel;
+	}
 	tmp.acc = realloc(e->acc, vec2_nents);
+	if(tmp.acc != NULL)
+	{
+		e->acc = tmp.acc;
+	}
 	tmp.r = realloc(e->r, float_nents);
+	if(tmp.r != NULL)
+	{
+		e->r = tmp.r;
+	}
 	tmp.m = realloc(e->m, float_nents);
+	if(tmp.m != NULL)
+	{
+		e->m = tmp.m;
+	}
 	tmp.color = realloc(e->color, new_nents * sizeof(Color));
+	if(tmp.color != NULL)
+	{
+		e->color = tmp.color;
+	}
 
 	if(
 		tmp.pos == NULL ||
@@ -103,15 +127,7 @@ int realloc_rand_nentities(Entities* e, size_t new_nents)
 		return 1;
 	}
 
-	size_t old_nents = e->n_ents;
-
-	e->n_ents = tmp.n_ents;
-	e->pos = tmp.pos;
-	e->vel = tmp.vel;
-	e->acc = tmp.acc;
-	e->r = tmp.r;
-	e->m = tmp.m;
-	e->color = tmp.color;
+	size_t old_nents = e->nents;
 
 	for(size_t i = old_nents; i<new_nents; ++i)
 	{
