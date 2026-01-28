@@ -1,5 +1,5 @@
 all: main.c src/physics.c src/drawing.c src/entities.c src/maths.c src/quadtree.c
-	gcc -Wall -Wextra -Werror -o rpart main.c src/drawing.c src/physics.c src/entities.c src/maths.c src/quadtree.c -lraylib -lm -ldl -pthread
+	gcc -Wall -Wextra -Werror -o rpart main.c src/drawing.c src/physics.c src/entities.c src/maths.c src/quadtree.c src/unigrid.c -lraylib -lm -ldl -pthread
 
 o3: main.c src/physics.c src/drawing.c src/entities.c src/maths.c
 	gcc -O3 -Wall -Wextra -Werror -o rpart main.c src/drawing.c src/physics.c src/entities.c src/maths.c -lraylib -lm -ldl -pthread

@@ -14,8 +14,12 @@ typedef struct
 typedef struct
 {
 	size_t* large_ents;
-	UCell* small_grid;
-	size_t grid_size;
+	size_t large_size;
+	size_t large_cap;
+	UCell* cells;
+	size_t cell_size;
 }UGrid;
+
+int init_ugrid(Entities* e);
 
 #endif //UNIGRID_H

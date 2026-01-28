@@ -3,6 +3,7 @@
 #include "include/entities.h"
 #include "include/physics.h"
 #include "include/quadtree.h"
+#include "include/unigrid.h"
 #include <raylib.h>
 
 
@@ -61,6 +62,15 @@ int main(/* int argc, char** argv */){
 		return 1;
 	}
 	
+	err = init_ugrid(&entities);
+	if(err)
+	{
+		free_node_pool();
+		check_free(entities);
+		CloseWindow();
+		return 1;
+	}
+
 	double frametime_start;
 	double render_start;
 	double update_start;
