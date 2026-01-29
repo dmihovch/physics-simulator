@@ -11,7 +11,7 @@ void update_entities(Entities* e, Options opts)
 	// printf("past accumulate\n");
 	move_entities_handle_walls(e,opts);
 	// printf("past move\n");
-	handle_entity_collisions(e);
+	handle_entity_collisions_ugrid(e);
 	// printf("past handle\n");
 }
 
@@ -112,77 +112,9 @@ void move_entities_handle_walls(Entities* e, Options opts)
 
 void handle_entity_collisions(Entities* e)
 {
-	for(size_t i = 0; i<e->nents; ++i)
-	{
-		for(size_t j = i+1; j<e->nents; ++j)
-		{
-			float scalar_dist;	
-			Vector2 normal = check_collisions_circles(&scalar_dist,e->pos[i], e->r[i], e->pos[j], e->r[j]);
-			if(collision_occured(normal)){
-				float impulse = calculate_impulse(e, i, j, normal);
-				Vector2 impulse_vector = vec2_scalar_mult(normal, impulse);
-				//this is messy, I don't like it, but it's not the point
-				vec2_add_ip(&e->vel[i], vec2_scalar_mult(impulse_vector, 1/e->m[i]));
-				vec2_add_ip(&e->vel[j], vec2_scalar_mult(impulse_vector, -(1/e->m[j])));
-				handle_penetration(e, i,j, normal, scalar_dist);
-			}
-		}
-	}
-}
+	
+	handle_entity_collisions_ugrid(e);
 
-void handle_penetration(Entities* e,size_t a_idx, size_t b_idx,	Vector2 normal, float scalar_distance)
-{
-	float penetration_distance = e->r[a_idx] + e->r[b_idx];
-	if(scalar_distance > 0.)
-	{
-		penetration_distance -= scalar_distance;
-	}
-	Vector2 scaled_normal = vec2_scalar_mult(normal, penetration_distance*PERCENT_CORRECTION);
-	float mass_for_a = e->m[b_idx]/(e->m[a_idx] + e->m[b_idx]);
-	float mass_for_b = e->m[a_idx]/(e->m[a_idx] + e->m[b_idx]);
-	Vector2 a_correction = vec2_scalar_mult(scaled_normal, mass_for_a);
-	Vector2 b_correction = vec2_scalar_mult(scaled_normal, mass_for_b);
-	vec2_sub_ip(&e->pos[a_idx], a_correction);
-	vec2_add_ip(&e->pos[b_idx], b_correction);
-}
-float calculate_impulse(Entities* e, size_t a_idx, size_t b_idx, Vector2 normal)
-{
-	Vector2 relative_vel = vec2_sub(e->vel[a_idx], e->vel[b_idx]);
-	float relative_normal = vec2_dot(relative_vel,normal);
-	float inverse_masses = (1/e->m[a_idx]) + (1/e->m[b_idx]);
-	float neg1plusE = -(1 + ELASTICITY);
-	return (neg1plusE * relative_normal) / inverse_masses;
-}
-
-bool collision_occured(Vector2 normal)
-{
-	return (normal.x != 0 && normal.y != 0);
-}
-
-Vector2 check_collisions_circles(float* scalar_dist,Vector2 apos, float ar, Vector2 bpos, float br)
-{
-
-	*scalar_dist = -1;
-	Vector2 delta = vec2_sub(bpos, apos);
-	float distsq = vec2_dot(delta,delta);
-	float rsq = (ar+br) * (ar+br);
-	if(distsq > rsq)
-	{
-		return (Vector2){0,0};
-	}
-	if(distsq == 0.)
-	{
-		//not sure if I have to calculate the peenetration of this case
-		*scalar_dist = 0.;
-		return (Vector2)
-		{
-			1,0
-		};
-	} 
-
-	float dist = sqrtf(distsq);
-	*scalar_dist = dist;
-	return (Vector2){delta.x/dist, delta.y/dist};
 }
 
 
