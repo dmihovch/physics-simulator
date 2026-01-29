@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "maths.h"
 #include "entities.h"
+#include "physics.h"
 
 typedef struct 
 {
@@ -17,9 +18,12 @@ typedef struct
 	size_t large_size;
 	size_t large_cap;
 	UCell* cells;
-	size_t cell_size;
+	size_t cells_rows;
+	size_t cells_cols;
 }UGrid;
 
 int init_ugrid(Entities* e);
-
+void free_ugrid(void);
+int fill_ugrid(Entities* e);
+void handle_entity_collisions_ugrid(Entities* e);
 #endif //UNIGRID_H

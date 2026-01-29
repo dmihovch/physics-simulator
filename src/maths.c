@@ -1,5 +1,11 @@
 #include "../include/maths.h"
 
+
+int scale_value(int v, Range old, Range new)
+{
+	return new.ub + (new.ub - new.lb) * (v - old.lb) / (old.ub - old.lb);
+}
+
 float vec2_distance_squared(Vector2 a, Vector2 b)
 {
 	Vector2 delta = vec2_sub(a,b);
