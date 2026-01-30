@@ -1,9 +1,14 @@
 #include "../include/maths.h"
 
 
+size_t matrix_to_linear_idx(IVec2 coords, size_t cols)
+{
+	return coords.x * cols + coords.y;	
+}
+
 int scale_value(int v, Range old, Range new)
 {
-	return new.ub + (new.ub - new.lb) * (v - old.lb) / (old.ub - old.lb);
+	return new.lb + (new.ub - new.lb) * (v - old.lb) / (old.ub - old.lb);
 }
 
 float vec2_distance_squared(Vector2 a, Vector2 b)

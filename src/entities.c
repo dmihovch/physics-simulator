@@ -9,7 +9,7 @@ int alloc_rand_entities(Entities* e)
 	e->r = malloc(e->nents*sizeof(float));
 	e->m = malloc(e->nents*sizeof(float));
 	e->color = malloc(e->nents*sizeof(Color));
-	e->grididx = malloc(e->nents*(sizeof(size_t)));
+	e->gridpos = malloc(e->nents*(sizeof(size_t)));
 	e->oldpos = malloc(e->nents*sizeof(Vector2));
 
 	if(e->pos == NULL ||
@@ -18,7 +18,7 @@ int alloc_rand_entities(Entities* e)
 	   e->r == NULL ||
 	   e->m == NULL ||
 	   e->color == NULL ||
-	   e->grididx == NULL ||
+	   e->gridpos == NULL ||
 	   e->oldpos == NULL
 	)
 	{
@@ -42,7 +42,7 @@ void create_rand_entity(Entities* e, size_t i)
 	e->r[i] = 5.;
 	e->m[i] = .001;
 	e->color[i] = rand_color();
-	e->grididx[i] = -1;
+	e->gridpos[i] = (IVec2){-1,-1};
 }
 
 int check_free(Entities e)
@@ -78,10 +78,10 @@ int check_free(Entities e)
 		non_null = 1;
 		free(e.color);
 	}
-	if(e.grididx != NULL)
+	if(e.gridpos != NULL)
 	{
 		non_null = 1;
-		free(e.grididx);
+		free(e.gridpos);
 	}
 	if(e.oldpos != NULL)
 	{
@@ -128,10 +128,10 @@ int realloc_rand_nentities(Entities* e, size_t new_nents)
 	{
 		e->color = tmp.color;
 	}
-	tmp.grididx = realloc(e->grididx, new_nents * sizeof(IVec2));
-	if(tmp.grididx != NULL)
+	tmp.gridpos = realloc(e->gridpos, new_nents * sizeof(IVec2));
+	if(tmp.gridpos != NULL)
 	{
-		e->grididx = tmp.grididx;
+		e->gridpos = tmp.gridpos;
 	}
 	tmp.oldpos = realloc(e->oldpos, vec2_nents);
 
@@ -142,7 +142,7 @@ int realloc_rand_nentities(Entities* e, size_t new_nents)
 		tmp.r == NULL ||
 		tmp.m == NULL ||
 		tmp.color == NULL ||
-		tmp.grididx == NULL ||
+		tmp.gridpos == NULL ||
 		tmp.oldpos == NULL
 	)
 	{

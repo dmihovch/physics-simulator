@@ -110,12 +110,6 @@ void move_entities_handle_walls(Entities* e, Options opts)
 
 }
 
-void handle_entity_collisions(Entities* e)
-{
-	
-	handle_entity_collisions_ugrid(e);
-
-}
 
 
 

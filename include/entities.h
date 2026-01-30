@@ -19,7 +19,7 @@ typedef struct {
 	float* r;
 	float* m;
 	Color* color;
-	size_t* grididx;
+	IVec2* gridpos;
 	Vector2* oldpos;
 }Entities;
 int alloc_rand_entities(Entities* e);
