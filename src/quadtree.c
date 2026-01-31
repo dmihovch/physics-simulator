@@ -93,31 +93,31 @@ QNode* get_next_node(Quadrant parent, enum Direction dir)
 }
 
 
-int build_quadtree(Entities* e)
+QNode* build_quadtree(Entities* e)
 {
 	// printf("in build_quad\n");
 	next_free_node = 0;	
-
-	e->root = get_next_node((Quadrant)
+	QNode* root;
+	root = get_next_node((Quadrant)
 		{
 			.cx = (SIM_MAX_WIDTH_COORD+SIM_MIN_WIDTH_COORD)/2,
 			.cy = (SIM_MAX_HEIGHT_COORD+SIM_MIN_HEIGHT_COORD)/2,
 			.half = SIM_DIM/2,
 		}, -1);
-	if(e->root == NULL)
+	if(root == NULL)
 	{
 		printf("root is null\n");
-		return 1;
+		return NULL;
 	}
 	// printf("got next node\n");
 	for(size_t i = 0; i<e->nents; ++i)
 	{
 			// printf("inserting %ld... ",i);
-			insert_qentity(e->root,e,i);
+			insert_qentity(root,e,i);
 			// printf("done!\n");
 	}
 
-	return 0;
+	return root;
 	
 }
 
@@ -182,6 +182,7 @@ void insert_qentity(QNode* node, Entities* e, size_t i)
 	}
 	if(node->entity != -1 && node->quad.half <= TREE_DEPTH_LIMITER)
 	{
+		printf("deep tree\n");
 		enum Direction new_shared_dir = get_quadrant(node,e->pos[node->entity]);
 		if(node->quads[new_shared_dir] == NULL)
 		{

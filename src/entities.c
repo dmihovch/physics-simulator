@@ -9,13 +9,15 @@ int alloc_rand_entities(Entities* e)
 	e->r = malloc(e->nents*sizeof(float));
 	e->m = malloc(e->nents*sizeof(float));
 	e->color = malloc(e->nents*sizeof(Color));
+	e->gridpos = malloc(e->nents*(sizeof(IVec2)));
 
 	if(e->pos == NULL ||
 	   e->vel == NULL ||
 	   e->acc == NULL ||
 	   e->r == NULL ||
 	   e->m == NULL ||
-	   e->color == NULL
+	   e->color == NULL ||
+	   e->gridpos == NULL
 	)
 	{
 		return 1;
@@ -38,6 +40,7 @@ void create_rand_entity(Entities* e, size_t i)
 	e->r[i] = 5.;
 	e->m[i] = .001;
 	e->color[i] = rand_color();
+	e->gridpos[i] = (IVec2){-1,-1};
 }
 
 int check_free(Entities e)
@@ -73,7 +76,21 @@ int check_free(Entities e)
 		non_null = 1;
 		free(e.color);
 	}
+	if(e.gridpos != NULL)
+	{
+		non_null = 1;
+		free(e.gridpos);
+	}
 	return non_null;
+}
+
+int is_null(void* ptr)
+{
+	if(ptr == NULL)
+	{
+		return 1;
+	}
+	return 0;
 }
 
 int realloc_rand_nentities(Entities* e, size_t new_nents)
@@ -83,51 +100,74 @@ int realloc_rand_nentities(Entities* e, size_t new_nents)
 
 	Entities tmp = {0};
 	tmp.nents = new_nents;
+
 	tmp.pos = realloc(e->pos, vec2_nents);
-	if(tmp.pos != NULL)
+	if(tmp.pos == NULL)
 	{
-		e->pos = tmp.pos;
+		return 1;
 	}
 	tmp.vel = realloc(e->vel,vec2_nents);
-	if(tmp.vel != NULL)
+	if(tmp.vel == NULL)
 	{
-		e->vel = tmp.vel;
+		free(tmp.pos);
+		return 1;
 	}
 	tmp.acc = realloc(e->acc, vec2_nents);
-	if(tmp.acc != NULL)
+	if(tmp.acc == NULL)
 	{
-		e->acc = tmp.acc;
+		free(tmp.pos);
+		free(tmp.vel);
+		return 1;
 	}
 	tmp.r = realloc(e->r, float_nents);
-	if(tmp.r != NULL)
+	if(tmp.r == NULL)
 	{
-		e->r = tmp.r;
+		free(tmp.pos);
+		free(tmp.vel);
+		free(tmp.acc);
+		return 1;
 	}
 	tmp.m = realloc(e->m, float_nents);
-	if(tmp.m != NULL)
+	if(tmp.m == NULL)
 	{
-		e->m = tmp.m;
+		free(tmp.pos);
+		free(tmp.vel);
+		free(tmp.acc);
+		free(tmp.r);
+		return 1;
 	}
 	tmp.color = realloc(e->color, new_nents * sizeof(Color));
-	if(tmp.color != NULL)
+	if(tmp.color == NULL)
 	{
-		e->color = tmp.color;
-	}
-
-	if(
-		tmp.pos == NULL ||
-		tmp.vel == NULL ||
-		tmp.acc == NULL ||
-		tmp.r == NULL ||
-		tmp.m == NULL ||
-		tmp.color == NULL
-	)
-	{
-		check_free(tmp);
+		free(tmp.pos);
+		free(tmp.vel);
+		free(tmp.acc);
+		free(tmp.r);
+		free(tmp.m);
 		return 1;
+	}
+	tmp.gridpos = realloc(e->gridpos, new_nents * sizeof(IVec2));
+	if(tmp.gridpos == NULL)
+	{
+		free(tmp.pos);
+		free(tmp.vel);
+		free(tmp.acc);
+		free(tmp.r);
+		free(tmp.m);
+		free(tmp.color);
+		return 1;
+	
 	}
 
 	size_t old_nents = e->nents;
+
+	e->pos = tmp.pos;
+	e->vel = tmp.vel;
+	e->acc = tmp.acc;
+	e->r = tmp.r;
+	e->m = tmp.m;
+	e->color = tmp.color;
+	e->gridpos = tmp.gridpos;
 
 	for(size_t i = old_nents; i<new_nents; ++i)
 	{
