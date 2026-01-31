@@ -5,12 +5,15 @@
 static UGrid grid;   
 
 
+#define DEFAULT_CELL_SIZE_CAP 8
+
 int init_ugrid(Entities* e)
 {
 	size_t nents = e->nents;
 	grid.large_ents = malloc(nents*sizeof(size_t));
 	if(grid.large_ents == NULL)
 	{
+		grid.large_ents = NULL;
 		return 1;
 	}
 	grid.large_size = 0;
@@ -23,28 +26,33 @@ int init_ugrid(Entities* e)
 	if(grid.cells == NULL)
 	{
 		free(grid.large_ents);
-		return 2;
+		grid.large_ents = NULL;
+		return 1;
 	}
 	grid.cells_rows = cells_rows;
 	grid.cells_cols = cells_cols;
 	
-	for(size_t i = 0; i<num_cells; ++i)
+	int failed_at_idx = -1;
+	for(int i = 0; i<(int)num_cells; ++i)
 	{
-		grid.cells[i].entity = malloc(nents*sizeof(size_t));
+		grid.cells[i].capacity = DEFAULT_CELL_SIZE_CAP;
+		grid.cells[i].count = 0;
+		grid.cells[i].entity = malloc(grid.cells[i].capacity*sizeof(size_t));
 		if(grid.cells[i].entity == NULL)
 		{
-			for(size_t j = 0; j<i; j++)
-			{
-				free(grid.cells[j].entity);
-			}
+			failed_at_idx = i;
 			break;
 		}
 	}
-	if(grid.cells[0].entity == NULL)
+	if(failed_at_idx != -1)
 	{
+		for(int i = 0; i<failed_at_idx; ++i)
+		{
+			free(grid.cells[i].entity);
+		}
 		free(grid.cells);
 		free(grid.large_ents);
-		return 3;
+		return 1;
 	}
 
 	return 0;
@@ -100,7 +108,6 @@ int fill_ugrid(Entities* e)
 	for(size_t i = 0; i<e->nents; ++i)
 	{
 
-		e->oldpos[i] = e->pos[i];
 
 
 		if(e->r[i] > SMALL_PARTICLE_CUTOFF)
@@ -133,13 +140,20 @@ int fill_ugrid(Entities* e)
 		{
 			iscaled_pos.x = (int)grid.cells_cols-1;
 		}
+		if(iscaled_pos.x < 0)
+		{
+			iscaled_pos.x = 0;
+		}
 
 		iscaled_pos.y /= SMALL_PARTICLE_CUTOFF;
 		if(iscaled_pos.y >= (int)grid.cells_rows)
 		{
 			iscaled_pos.y = (int)grid.cells_rows-1;
 		}
-
+		if(iscaled_pos.y < 0)
+		{
+			iscaled_pos.y = 0;
+		}
 
 		size_t idx = matrix_to_linear_idx(iscaled_pos,grid.cells_cols);
 		e->gridpos[i] = iscaled_pos;
@@ -164,10 +178,16 @@ int fill_ugrid(Entities* e)
 	return 0;
 }
 
-void check_collision_cells(Entities* e,size_t i, UCell cell)
+void check_collision_cells(Entities* e,size_t i, UCell cell, bool same_cell)
 {
 	for(size_t j_i = 0; j_i<cell.count; ++j_i)
 	{
+		size_t j = cell.entity[j_i];
+		if(same_cell && i >= j)
+		{
+			continue;
+		}
+
 		check_collision(e,i,cell.entity[j_i]);
 	}
 }
@@ -180,68 +200,25 @@ void check_collision_sm_sm(Entities* e,size_t i)
 	IVec2 pos = e->gridpos[i];
 	int col = pos.x;
 	int row = pos.y;
-	
-	size_t idx = matrix_to_linear_idx(pos,grid.cells_cols);
 
 	int ix;
 	int iy;
-	for(int drow = -1; drow<=1; ++drow)
+	for(int drow = 0; drow<=1; ++drow)
 	{
 		for(int dcol = -1; dcol<=1; ++dcol)
 		{
+			if(drow == 0 && dcol == -1)
+			{
+				continue;
+			}
 			iy = row + drow;
 			ix = col + dcol;
 			if((iy >= 0 && iy < (int)grid.cells_rows) && (ix >= 0 && ix <(int)grid.cells_cols))
 			{
-				check_collision_cells(e,i,grid.cells[matrix_to_linear_idx(pos,grid.cells_cols)]);
+				bool same_cell = (drow == 0 && dcol == 0);
+				check_collision_cells(e,i,grid.cells[matrix_to_linear_idx((IVec2){ix,iy},grid.cells_cols)],same_cell);
 			}
 		}
-	}
-
-
-	size_t cols = grid.cells_cols;
-	size_t grid_size = grid.cells_cols*grid.cells_rows;
-
-	int topleft = (idx-cols)-1;
-	if(topleft >= 0)
-	{
-	check_collision_cells(e,i,grid.cells[topleft]);
-	}
-	int topmid = idx-cols;
-	if(topmid >= 0)
-	{
-	check_collision_cells(e,i,grid.cells[topmid]);
-	}
-	int topright = (idx-cols)+1;
-	if(topright >= 0)
-	{
-		check_collision_cells(e,i,grid.cells[topright]);
-	}
-	int midleft = idx-1;
-	if(midleft >= 0)
-	{
-		check_collision_cells(e,i,grid.cells[midleft]);
-	}
-	check_collision_cells(e,i,grid.cells[idx]);
-	size_t midright = idx+1;
-	if(midright < grid_size)
-	{
-	check_collision_cells(e,i,grid.cells[midright]);
-	}
-	size_t botleft = (idx+cols)-1;
-	if((size_t)botleft < grid_size)
-	{
-	check_collision_cells(e,i,grid.cells[botleft]);
-	}
-	size_t botmid = idx+cols;
-	if(botmid < grid_size)
-	{
-	check_collision_cells(e,i,grid.cells[botmid]);
-	}
-	size_t botright = (idx+cols)+1;
-	if(botright < grid_size)
-	{
-	check_collision_cells(e,i,grid.cells[botright]);
 	}
 }
 
@@ -249,7 +226,17 @@ void check_collision_sm_lg(Entities* e,size_t i)
 {
 	for(size_t j_i = 0; j_i<grid.large_size; j_i++)
 	{
-		check_collision(e,i,grid.large_ents[j_i]);
+
+		size_t large_idx = grid.large_ents[j_i];
+		if(i < large_idx)
+		{
+			check_collision(e,i,large_idx);
+		}
+		else
+		{
+			check_collision(e,large_idx,i);
+		}
+
 	}
 }
 
@@ -286,14 +273,21 @@ void handle_entity_collisions_ugrid(Entities* e)
 
 void check_collision(Entities* e, size_t i, size_t j)
 {
+
+	if(i == j)
+	{
+		return;
+	}
+
 	float scalar_dist;	
-	Vector2 normal = check_collisions_circles(&scalar_dist,e->oldpos[i], e->r[i], e->oldpos[j], e->r[j]);
+	Vector2 normal = check_collisions_circles(&scalar_dist,e->pos[i], e->r[i], e->pos[j], e->r[j]);
 	if(collision_occured(normal))
 	{
 		float impulse = calculate_impulse(e, i, j, normal);
 		Vector2 impulse_vector = vec2_scalar_mult(normal, impulse);
 		//this is messy, I don't like it, but it's not the point
 		vec2_add_ip(&e->vel[i], vec2_scalar_mult(impulse_vector, 1/e->m[i]));
+		vec2_sub_ip(&e->vel[j], vec2_scalar_mult(impulse_vector, 1/e->m[j]));
 		handle_penetration(e, i,j, normal, scalar_dist);
 	}
 }

@@ -182,6 +182,7 @@ void insert_qentity(QNode* node, Entities* e, size_t i)
 	}
 	if(node->entity != -1 && node->quad.half <= TREE_DEPTH_LIMITER)
 	{
+		printf("deep tree\n");
 		enum Direction new_shared_dir = get_quadrant(node,e->pos[node->entity]);
 		if(node->quads[new_shared_dir] == NULL)
 		{

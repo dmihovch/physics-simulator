@@ -25,7 +25,7 @@ int init_ugrid(Entities* e);
 void free_ugrid(void);
 int fill_ugrid(Entities* e);
 void handle_entity_collisions_ugrid(Entities* e);
-void handle_collisions_cells(Entities* e, size_t i, size_t cell_idx);
+void handle_collisions_cells(Entities* e, size_t i, size_t cell_idx, bool same_cell);
 void check_collision_sm_sm(Entities* e,size_t i);
 size_t get_cell_idx(size_t row,size_t col,size_t cols);
 void check_collision_sm_lg(Entities* e,size_t i);

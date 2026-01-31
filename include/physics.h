@@ -32,10 +32,11 @@ void* threaded_reset_accelerations(void* payload);
 
 
 //not threaded
+void handle_walls(Entities* e);
 void update_entities(Entities* e, Options opts);
 void reset_accelerations(Entities* e);
 void accumulate_forces(Entities* e, Options opts);
-void move_entities_handle_walls(Entities* e, Options opts);
+void move_entities(Entities* e, Options opts);
 void handle_entity_collisions(Entities* e, size_t i, size_t j);
 Vector2 check_collisions_circles(float* scalar_dist,Vector2 apos, float ar, Vector2 bpos, float br);
 float calculate_impulse(Entities* e, size_t a_idx, size_t b_idx, Vector2 normal);

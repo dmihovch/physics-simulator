@@ -9,10 +9,11 @@ void update_entities(Entities* e, Options opts)
 	// printf("past reset\n");
 	accumulate_forces(e,opts);
 	// printf("past accumulate\n");
-	move_entities_handle_walls(e,opts);
+	move_entities(e,opts);
 	// printf("past move\n");
 	handle_entity_collisions_ugrid(e);
 	// printf("past handle\n");
+	handle_walls(e);
 }
 
 void reset_accelerations(Entities* e)
@@ -34,11 +35,11 @@ void grav_force_calculation(Entities* e, QNode* node, size_t i, float gravity, V
 
 void accumulate_forces_from_tree(Entities* e, QNode* node, int i, float gravity)
 {
-	if(node == NULL || node->entity == i)
+	if(node == NULL || node->entity == i) //refactor
 	{
 		return;
 	}
-
+	
 	Vector2 delta = vec2_sub(vec2_scalar_mult(node->com, 1.0f/node->cum_mass),e->pos[i]);
 	float d2 = vec2_dot(delta,delta);
 	if(node->entity != -1)
@@ -79,13 +80,10 @@ void accumulate_forces(Entities* e, Options opts)
 	
 }
 
-void move_entities_handle_walls(Entities* e, Options opts)
+void handle_walls(Entities* e)
 {
 	for(size_t i = 0; i<e->nents; ++i)
 	{
-		vec2_add_ip(&e->vel[i],vec2_scalar_mult(e->acc[i], opts.timestep));
-		vec2_add_ip(&e->pos[i],vec2_scalar_mult(e->vel[i], opts.timestep));
-
 		if(e->pos[i].x + e->r[i] > SIM_MAX_WIDTH_COORD)
 		{
 			e->pos[i].x = SIM_MAX_WIDTH_COORD - e->r[i];
@@ -106,6 +104,16 @@ void move_entities_handle_walls(Entities* e, Options opts)
 			e->pos[i].y = SIM_MIN_HEIGHT_COORD + e->r[i];
 			e->vel[i].y = -e->vel[i].y * ELASTICITY;
 		}
+	}
+}
+
+void move_entities(Entities* e, Options opts)
+{
+	for(size_t i = 0; i<e->nents; ++i)
+	{
+		vec2_add_ip(&e->vel[i],vec2_scalar_mult(e->acc[i], opts.timestep));
+		vec2_add_ip(&e->pos[i],vec2_scalar_mult(e->vel[i], opts.timestep));
+
 	}
 
 }
